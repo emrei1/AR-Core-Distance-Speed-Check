@@ -1,0 +1,11 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        google()
+        mavenCentral()
+    }
+}
+rootProject.name = "SceneformDeneme8"
+include ':app'
+include ':sceneformux'
+include ':sceneform'
