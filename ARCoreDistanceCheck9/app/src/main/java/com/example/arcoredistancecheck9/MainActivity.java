@@ -11,6 +11,7 @@ import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
+import android.util.Size;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -19,6 +20,8 @@ import com.example.arcoredistancecheck9.helpers.DisplayRotationHelper;
 import com.example.arcoredistancecheck9.samplerender.SampleRender;
 import com.example.arcoredistancecheck9.samplerender.arcore.BackgroundRenderer;
 import com.google.ar.core.Camera;
+import com.google.ar.core.CameraConfig;
+import com.google.ar.core.CameraConfigFilter;
 import com.google.ar.core.Config;
 import com.google.ar.core.Frame;
 import com.google.ar.core.Plane;
@@ -42,6 +45,7 @@ import java.sql.Array;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class MainActivity extends AppCompatActivity implements SampleRender.Renderer  {
@@ -87,6 +91,7 @@ public class MainActivity extends AppCompatActivity implements SampleRender.Rend
 
         distanceBar = findViewById(R.id.distanceBar);
 
+        /*
         Button showPhotos = findViewById(R.id.showPhotos);
         showPhotos.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -95,6 +100,8 @@ public class MainActivity extends AppCompatActivity implements SampleRender.Rend
                 openActivity2();
             }
         });
+
+         */
 
         TextView speedView = findViewById(R.id.speed);
 
@@ -171,7 +178,7 @@ public class MainActivity extends AppCompatActivity implements SampleRender.Rend
                 Image image = imageQueue.pop();
                 YuvImage yuvImage = toYuvImage(image);
                 image.close();
-                if (savedImageCount < 30) {
+                if (savedImageCount < 5) {
                     handleImageCapture(yuvImage);
                     savedImageCount += 1;
                     // Log.e("tag", "downloaded image");
@@ -370,6 +377,33 @@ public class MainActivity extends AppCompatActivity implements SampleRender.Rend
     private void configureSession() {
         Config config = session.getConfig();
         config.setLightEstimationMode(Config.LightEstimationMode.ENVIRONMENTAL_HDR);
+
+        CameraConfigFilter cameraConfigFilter = new CameraConfigFilter(session);
+        List<CameraConfig> configList = session.getSupportedCameraConfigs(cameraConfigFilter);
+
+
+        /*
+        for (CameraConfig cConfig : configList) {
+            Size thisSizeCPU = cConfig.getImageSize();
+            Size thisSizeGPU = cConfig.getTextureSize();
+            Log.e("tag", "CPU size is " + thisSizeCPU.getHeight() + "x" + thisSizeCPU.getWidth());
+            Log.e("tag", "GPU size is " + thisSizeGPU.getHeight() + "x" + thisSizeGPU.getWidth());
+        }
+
+         */
+
+
+
+        // Log.e("tag", "finished size exec");
+
+        for (int i = 0; i < configList.size(); i++) {
+            if (i == 2) {
+                CameraConfig highResConfig = configList.get(2);
+                session.setCameraConfig(highResConfig);
+            }
+        }
+
+
         if (session.isDepthModeSupported(Config.DepthMode.AUTOMATIC)) {
             config.setDepthMode(Config.DepthMode.AUTOMATIC);
         } else {
